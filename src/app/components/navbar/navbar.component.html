@@ -1,8 +1,5 @@
-<!-- <div class="card">
-  <p-menubar [model]="items" />
-</div> -->
 <nav class="px-4 py-5 border-b-2 border-gray-300">
-  <div class="flex justify-between">
+  <div class="flex justify-between items-center">
     <div class="flex space-x-1 items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -20,21 +17,15 @@
         <path d="M3 6h18" />
         <path d="M16 10a4 4 0 0 1-8 0" />
       </svg>
-      <div
+
+      @for (item of navItems; track item.label) {
+      <a
+        [routerLink]="item.route"
         class="hover:bg-gray-50 hover:border-b-[0.5px] hover:border-gray-200 px-4 py-2 rounded-lg cursor-pointer"
       >
-        Products
-      </div>
-      <div
-        class="hover:bg-gray-50 hover:border-b-[0.5px] hover:border-gray-200 px-4 py-2 rounded-lg cursor-pointer"
-      >
-        Favouris
-      </div>
-      <div
-        class="hover:bg-gray-50 hover:border-b-[0.5px] hover:border-gray-200 px-4 py-2 rounded-lg cursor-pointer"
-      >
-        Contact
-      </div>
+        {{ item.label }}
+      </a>
+      }
     </div>
 
     <div
@@ -61,7 +52,7 @@
       <div
         class="absolute flex items-center justify-center bg-red-500 text-white translate-y-[15px] translate-x-[-20px] bottom-0 w-8 h-8 rounded-full"
       >
-        15
+        {{ cartItemCount }}
       </div>
     </div>
   </div>

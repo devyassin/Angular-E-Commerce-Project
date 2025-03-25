@@ -22,6 +22,8 @@ export class ProductService {
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
   activeFilter = signal<ProductFilter>({});
+  selectedProduct = signal<Product | null>(null);
+  selectedImage = signal<string>('');
 
   setFilter(filter: ProductFilter): void {
     this.activeFilter.set(filter);
@@ -119,6 +121,25 @@ export class ProductService {
           this.paginatedProducts.set(response.data);
           this.totalPages.set(response.pages);
           this.totalItems.set(response.items);
+        },
+        error: (error) => {
+          this.error.set(error.message);
+        },
+      });
+  }
+
+  fetchOneProduct(productId: number) {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    return this.http
+      .get<Product>(`${API_URL}/products?id=${productId}`)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (product: any) => {
+          console.log(product[0]);
+          this.selectedProduct.set(product[0]);
+          this.selectedImage.set(product[0].images[0]);
         },
         error: (error) => {
           this.error.set(error.message);
