@@ -1,0 +1,16 @@
+<h1 class="text-2xl font-bold mb-4">Products</h1>
+
+@if (productService.isLoading()) {
+<div class="card flex justify-center w-full">
+  <p-progress-spinner ariaLabel="loading" />
+</div>
+
+} @else { @if (productService.error()) {
+<div class="text-center text-red-500">Error: {{ productService.error() }}</div>
+} @else {
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  @for (product of productService.paginatedProducts(); track product.id) {
+  <app-product-card [product]="product"></app-product-card>
+  }
+</div>
+} }

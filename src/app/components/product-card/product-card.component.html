@@ -1,0 +1,32 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <img
+    [src]="product.imageUrl"
+    [alt]="product.name"
+    class="w-full h-64 object-cover"
+  />
+  <div class="p-4">
+    <h2 class="text-xl font-semibold">{{ product.name }}</h2>
+    <p class="text-gray-600">{{ product.description }}</p>
+    <div class="flex items-center mt-2">
+      <span class="text-yellow-500">Rating: {{ product.rating }}</span>
+      <span class="text-gray-500 ml-2">({{ product.reviews }} Reviews)</span>
+    </div>
+    <div class="mt-4">
+      @if (product.discountPrice) {
+      <span class="text-gray-700 line-through">{{
+        product.price | currency
+      }}</span>
+      <span class="text-xl font-bold ml-2">{{
+        product.discountPrice | currency
+      }}</span>
+      } @else {
+      <span class="text-xl font-bold">{{ product.price | currency }}</span>
+      }
+    </div>
+    <button
+      class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      Add to Cart
+    </button>
+  </div>
+</div>
