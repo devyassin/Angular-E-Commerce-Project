@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { CartService } from '../../services/cart.service';
 
 // app.component.html
 
@@ -10,13 +11,16 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
-export class NavbarComponent  {
-  cartItemCount = 15; 
+export class NavbarComponent {
+  constructor(public cartService: CartService) {}
 
-  // Navigation items with routing
   navItems = [
-    { label: 'Products', route: '/products' },
-    { label: 'Favourites', route: '/favourites' },
-    { label: 'Contact', route: '/contact' }
+    { label: 'Products', route: '/home' },
+    { label: 'Shopping Cart', route: '/shopping_cart' },
+    { label: 'Contact', route: '/contact' },
   ];
+
+  get cartProducts() {
+    return this.cartService.cartProducts();
+  }
 }

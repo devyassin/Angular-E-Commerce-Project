@@ -21,6 +21,8 @@
       @for (item of navItems; track item.label) {
       <a
         [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="hover:bg-gray-50 hover:border-b-[0.5px] hover:border-gray-200 px-4 py-2 rounded-lg cursor-pointer"
       >
         {{ item.label }}
@@ -52,7 +54,7 @@
       <div
         class="absolute flex items-center justify-center bg-red-500 text-white translate-y-[15px] translate-x-[-20px] bottom-0 w-8 h-8 rounded-full"
       >
-        {{ cartItemCount }}
+        {{ cartProducts.length }}
       </div>
     </div>
   </div>

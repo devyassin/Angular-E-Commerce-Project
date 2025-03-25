@@ -3,6 +3,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Product } from '../models/product.type';
 import { finalize } from 'rxjs';
 import { ProductFilter } from '../models/filter.type';
+import { CartService } from './cart.service';
+import { CartItem } from '../models/cart.type';
 
 const API_URL = 'http://localhost:3000';
 type PaginatedResponse<T> = {
@@ -16,6 +18,7 @@ type PaginatedResponse<T> = {
 })
 export class ProductService {
   http = inject(HttpClient);
+  cartService = inject(CartService);
   paginatedProducts = signal<Product[]>([]);
   totalPages = signal<number>(0);
   totalItems = signal<number>(0);
@@ -24,6 +27,11 @@ export class ProductService {
   activeFilter = signal<ProductFilter>({});
   selectedProduct = signal<Product | null>(null);
   selectedImage = signal<string>('');
+  cartProducts = signal<CartItem[]>([]);
+
+  constructor() {
+    this.loadItemsFromLocalStorage();
+  }
 
   setFilter(filter: ProductFilter): void {
     this.activeFilter.set(filter);
@@ -118,7 +126,8 @@ export class ProductService {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {
-          this.paginatedProducts.set(response.data);
+          this.paginatedProducts.set(this.addItemToCart(response.data));
+          console.log(this.paginatedProducts());
           this.totalPages.set(response.pages);
           this.totalItems.set(response.items);
         },
@@ -138,12 +147,36 @@ export class ProductService {
       .subscribe({
         next: (product: any) => {
           console.log(product[0]);
-          this.selectedProduct.set(product[0]);
+          this.selectedProduct.set(this.addSingleItemToCart(product[0]));
           this.selectedImage.set(product[0].images[0]);
         },
         error: (error) => {
           this.error.set(error.message);
         },
       });
+  }
+
+  private loadItemsFromLocalStorage() {
+    const items = localStorage.getItem('items');
+    if (items) {
+      this.cartProducts.set(JSON.parse(items));
+    }
+  }
+
+  private addItemToCart(products: Product[]): Product[] {
+    return products.map((product) => ({
+      ...product,
+      isAddedToCart: this.cartProducts().some(
+        (item) => item.product.id === product.id
+      ),
+    }));
+  }
+  private addSingleItemToCart(product: Product): Product {
+    return {
+      ...product,
+      isAddedToCart: this.cartProducts().some(
+        (item) => item.product.id === product.id
+      ),
+    };
   }
 }

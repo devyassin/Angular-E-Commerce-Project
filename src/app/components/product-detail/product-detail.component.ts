@@ -4,17 +4,19 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { ProgressSpinner } from 'primeng/progressspinner';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule,ProgressSpinner,RouterModule],
+  imports: [CommonModule, ProgressSpinner, RouterModule],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css',
 })
 export class ProductDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
-    public productService: ProductService
+    public productService: ProductService,
+    public cartService: CartService
   ) {}
 
   ngOnInit() {
@@ -27,9 +29,9 @@ export class ProductDetailComponent implements OnInit {
     this.productService.selectedImage.set(image);
   }
 
-  addToCart() {
-    // Implement add to cart functionality
-    console.log('Adding to cart:', this.product);
+  addToCart(product: Product) {
+    this.cartService.toggleItem(product);
+    product.isAddedToCart = !product.isAddedToCart;
   }
 
   get specifications() {
