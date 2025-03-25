@@ -47,3 +47,4 @@ export interface Order {
   trackingNumber?: string;
   notes?: string;
 }
+export type CheckoutStep = 'shipping' | 'billing' | 'payment' | 'confirmation';

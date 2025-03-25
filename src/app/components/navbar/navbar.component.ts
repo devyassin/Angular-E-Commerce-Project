@@ -17,7 +17,7 @@ export class NavbarComponent {
   navItems = [
     { label: 'Products', route: '/home' },
     { label: 'Shopping Cart', route: '/shopping_cart' },
-    { label: 'Contact', route: '/contact' },
+    { label: 'Orders', route: '/orders' },
   ];
 
   get cartProducts() {

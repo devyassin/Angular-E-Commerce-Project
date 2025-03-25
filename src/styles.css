@@ -3,3 +3,153 @@
 .active {
   @apply bg-gray-200 font-bold;
 }
+
+.checkout-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.checkout-header {
+  @apply mb-8;
+}
+
+.checkout-title {
+  @apply text-3xl font-semibold text-gray-900;
+}
+
+.form-container {
+  @apply bg-white rounded-xl shadow-lg overflow-hidden;
+}
+
+.step-indicators {
+  @apply flex justify-between border-b border-gray-200 px-8 py-4;
+}
+
+.step-indicator {
+  @apply flex flex-col items-center;
+}
+
+.step-circle {
+  @apply w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300;
+}
+
+.step-active {
+  @apply bg-blue-600 text-white;
+}
+
+.step-completed {
+  @apply bg-emerald-500 text-white;
+}
+
+.step-inactive {
+  @apply bg-gray-200 text-gray-500;
+}
+
+.step-label {
+  @apply mt-2 text-sm font-medium;
+}
+
+.step-content {
+  @apply p-8;
+}
+
+.form-group {
+  @apply mb-6;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+.input-field.ng-invalid.ng-touched {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.error-message {
+  @apply text-red-500 text-sm mt-1;
+}
+
+.checkout-actions {
+  @apply mt-8 flex justify-between;
+}
+
+.btn {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 text-gray-800 hover:bg-gray-200;
+}
+
+.order-summary {
+  @apply bg-white rounded-xl shadow-lg p-6;
+}
+
+.summary-title {
+  @apply text-xl font-semibold text-gray-900 mb-4;
+}
+
+.summary-item {
+  @apply flex justify-between py-2;
+}
+
+.summary-item-name {
+  @apply text-gray-600;
+}
+
+.summary-item-price {
+  @apply text-gray-900 font-medium;
+}
+
+.summary-divider {
+  @apply border-t border-gray-200 my-4;
+}
+
+.summary-total {
+  @apply flex justify-between font-semibold text-lg pt-4;
+}
+
+.checkbox-container {
+  @apply flex items-center mb-4;
+}
+
+.checkbox {
+  @apply h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500;
+}
+
+.checkbox-label {
+  @apply ml-2 text-gray-700;
+}
+
+/* Card input styling */
+.card-input-group {
+  @apply grid grid-cols-2 gap-4;
+}
+
+/* Payment method selection */
+.payment-methods {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 mb-6;
+}
+
+.payment-method {
+  @apply border border-gray-300 rounded-lg p-4 flex items-center cursor-pointer transition-all duration-200;
+}
+
+.payment-method.selected {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.payment-method-icon {
+  @apply mr-3 text-gray-500;
+}
+
+.payment-method-label {
+  @apply text-gray-700 font-medium;
+}

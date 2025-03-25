@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart.type';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Route, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-cart',
@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './cart.component.css',
 })
 export class CartComponent {
-  constructor(public cartService: CartService) {}
+  constructor(public cartService: CartService, private router: Router) {}
 
   updateQuantity(item: CartItem, newQuantity: number) {
     this.cartService.updateQuantity(item.product.id, newQuantity);
@@ -22,7 +22,6 @@ export class CartComponent {
   }
 
   checkout() {
-    // Implement checkout logic
-    console.log('Proceeding to checkout');
+    this.router.navigate(['/checkout']); // Correct navigation
   }
 }
