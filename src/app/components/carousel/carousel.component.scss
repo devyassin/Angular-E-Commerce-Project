@@ -1,0 +1,68 @@
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  &.prev {
+    left: 16px;
+  }
+
+  &.next {
+    right: 16px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+:host-context(.dark) {
+  .nav-button {
+    background-color: rgba(31, 41, 55, 0.8);
+    color: #fff;
+
+    &:hover {
+      background-color: rgba(31, 41, 55, 0.95);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-button {
+    width: 36px;
+    height: 36px;
+
+    &.prev {
+      left: 8px;
+    }
+
+    &.next {
+      right: 8px;
+    }
+  }
+} 
