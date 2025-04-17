@@ -1,4 +1,4 @@
-<nav class="px-4 py-5 border-b-2 border-gray-300">
+<nav class="px-4 py-5 border-b-2 border-gray-300 dark:border-gray-700">
   <div class="flex justify-between items-center">
     <div class="flex space-x-1 items-center">
       <svg
@@ -23,38 +23,58 @@
         [routerLink]="item.route"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="hover:bg-gray-50 hover:border-b-[0.5px] hover:border-gray-200 px-4 py-2 rounded-lg cursor-pointer"
+        class="hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-b-[0.5px] hover:border-gray-200 dark:hover:border-gray-600 px-4 py-2 rounded-lg cursor-pointer text-gray-700 dark:text-gray-300"
       >
         {{ item.label }}
       </a>
       }
     </div>
 
-    <div
-      class="bg-blue-100 relative flex items-center justify-center w-15 h-15 rounded-full mr-4"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="30"
-        height="30"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#9894ad"
-        stroke-width="1"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-shopping-cart"
-      >
-        <circle cx="8" cy="21" r="1" />
-        <circle cx="19" cy="21" r="1" />
-        <path
-          d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
-        />
-      </svg>
+    <div class="flex items-center space-x-4">
+      <!-- Auth Links -->
+      <div class="hidden md:flex items-center space-x-4">
+        @for (item of authItems; track item.label) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-b-[0.5px] hover:border-gray-200 dark:hover:border-gray-600 px-4 py-2 rounded-lg cursor-pointer text-gray-700 dark:text-gray-300"
+        >
+          {{ item.label }}
+        </a>
+        }
+      </div>
+
+      <!-- Theme Toggle -->
+      <app-theme-toggle></app-theme-toggle>
+
+      <!-- Cart Icon -->
       <div
-        class="absolute flex items-center justify-center bg-red-500 text-white translate-y-[15px] translate-x-[-20px] bottom-0 w-8 h-8 rounded-full"
+        class="bg-blue-100 dark:bg-blue-900 relative flex items-center justify-center w-15 h-15 rounded-full mr-4"
       >
-        {{ cartProducts.length }}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#9894ad"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-shopping-cart"
+        >
+          <circle cx="8" cy="21" r="1" />
+          <circle cx="19" cy="21" r="1" />
+          <path
+            d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
+          />
+        </svg>
+        <div
+          class="absolute flex items-center justify-center bg-red-500 text-white translate-y-[15px] translate-x-[-20px] bottom-0 w-8 h-8 rounded-full"
+        >
+          {{ cartProducts.length }}
+        </div>
       </div>
     </div>
   </div>
