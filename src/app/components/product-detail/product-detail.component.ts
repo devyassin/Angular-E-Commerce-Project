@@ -1,53 +1,53 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from '../../models/product.type';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { ProgressSpinner } from 'primeng/progressspinner';
 import { CartService } from '../../services/cart.service';
+import { Product } from '../../models/product.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, ProgressSpinner, RouterModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css',
+  styleUrls: ['./product-detail.component.css'],
 })
 export class ProductDetailComponent implements OnInit {
+  product$: Observable<Product | undefined>;
+  quantity = 1;
+  selectedImage = 0;
+
   constructor(
     private route: ActivatedRoute,
-    public productService: ProductService,
-    public cartService: CartService
-  ) {}
-
-  ngOnInit() {
-    const productId = +this.route.snapshot.paramMap.get('id')!;
-    this.productService.fetchOneProduct(productId);
-    console.log(this.productService.selectedProduct());
+    private productService: ProductService,
+    private cartService: CartService
+  ) {
+    const productId = this.route.snapshot.paramMap.get('id');
+    if (productId) {
+      this.product$ = this.productService.getProductById(productId);
+    } else {
+      this.product$ = new Observable();
+    }
   }
 
-  selectImage(image: string) {
-    this.productService.selectedImage.set(image);
+  ngOnInit(): void {}
+
+  incrementQuantity(): void {
+    this.quantity++;
   }
 
-  addToCart(product: Product) {
-    this.cartService.toggleItem(product);
-    product.isAddedToCart = !product.isAddedToCart;
+  decrementQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
   }
 
-  get specifications() {
-    return Object.entries(this.productService.selectedProduct()!.specs).map(
-      ([key, value]) => ({
-        key: key.charAt(0).toUpperCase() + key.slice(1),
-        value: value,
-      })
-    );
+  addToCart(productId: string): void {
+    this.cartService.addToCart(productId, this.quantity).subscribe();
   }
 
-  get product() {
-    return this.productService.selectedProduct();
-  }
-
-  get selectedImage() {
-    return this.productService.selectedImage();
+  selectImage(index: number): void {
+    this.selectedImage = index;
   }
 }

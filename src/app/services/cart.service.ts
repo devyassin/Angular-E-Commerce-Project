@@ -1,97 +1,104 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { CartItem } from '../models/cart.type';
-import { HttpClient } from '@angular/common/http';
-import { Product } from '../models/product.type';
+import { Injectable } from '@angular/core';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Cart, CartItem } from '../models/cart.model';
+import { Product } from '../models/product.model';
+import { ProductService } from './product.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  http = inject(HttpClient);
-  cartProducts = signal<CartItem[]>([]);
-  updateQuantity: any;
+  private cartSubject = new BehaviorSubject<Cart>({
+    id: '1',
+    customerId: '1',
+    items: [],
+    totalAmount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 
-  constructor() {
-    this.loadItemsFromLocalStorage();
+  public cart$ = this.cartSubject.asObservable();
+
+  constructor(private productService: ProductService) {}
+
+  getCart(): Observable<Cart> {
+    return this.cart$;
   }
 
-  private addItemToCart(products: Product[]): Product[] {
-    return products.map((product) => ({
-      ...product,
-      isAddedToCart: this.cartProducts().some(
-        (item) => item.product.id === product.id
-      ),
-    }));
-  }
-  toggleItem(product: Product) {
-    this.cartProducts.update((items) => {
-      const existingItemIndex = items.findIndex(
-        (item) => item.product.id === product.id
-      );
+  addToCart(productId: string, quantity: number = 1): Observable<boolean> {
+    this.productService.getProductById(productId).subscribe((product) => {
+      if (product) {
+        const currentCart = this.cartSubject.value;
+        const existingItem = currentCart.items.find(
+          (item) => item.productId === productId
+        );
 
-      if (existingItemIndex !== -1) {
-        return items.filter((_, index) => index !== existingItemIndex);
-      } else {
-        return [
-          ...items,
-          {
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          const newItem: CartItem = {
+            id: Date.now().toString(),
+            productId: productId,
             product: product,
-            quantity: 1,
-          },
-        ];
+            quantity: quantity,
+          };
+          currentCart.items.push(newItem);
+        }
+
+        this.updateCartTotal(currentCart);
+        this.cartSubject.next(currentCart);
       }
     });
 
-    this.saveItemsToLocalStorage();
+    return of(true);
   }
 
-  private saveItemsToLocalStorage() {
-    localStorage.setItem('items', JSON.stringify(this.cartProducts()));
+  removeFromCart(itemId: string): Observable<boolean> {
+    const currentCart = this.cartSubject.value;
+    currentCart.items = currentCart.items.filter((item) => item.id !== itemId);
+    this.updateCartTotal(currentCart);
+    this.cartSubject.next(currentCart);
+    return of(true);
   }
 
-  private loadItemsFromLocalStorage() {
-    const items = localStorage.getItem('items');
-    if (items) {
-      this.cartProducts.set(JSON.parse(items));
+  updateQuantity(itemId: string, quantity: number): Observable<boolean> {
+    const currentCart = this.cartSubject.value;
+    const item = currentCart.items.find((item) => item.id === itemId);
+
+    if (item) {
+      if (quantity <= 0) {
+        return this.removeFromCart(itemId);
+      }
+      item.quantity = quantity;
+      this.updateCartTotal(currentCart);
+      this.cartSubject.next(currentCart);
     }
+
+    return of(true);
   }
 
-  incrementQuantity(productId: number) {
-    this.cartProducts.update((items) =>
-      items.map((item) =>
-        item.product.id === productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
+  clearCart(): Observable<boolean> {
+    const currentCart = this.cartSubject.value;
+    currentCart.items = [];
+    currentCart.totalAmount = 0;
+    this.cartSubject.next(currentCart);
+    return of(true);
+  }
+
+  getItemCount(): Observable<number> {
+    return new BehaviorSubject(
+      this.cartSubject.value.items.reduce(
+        (count, item) => count + item.quantity,
+        0
       )
     );
-    this.saveItemsToLocalStorage();
   }
 
-  decrementQuantity(productId: number) {
-    this.cartProducts.update((items) =>
-      items
-        .map((item) =>
-          item.product.id === productId && item.quantity > 1
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
-    this.saveItemsToLocalStorage();
-  }
-
-  removeFromCart(productId: number) {
-    this.cartProducts.update((items) =>
-      items.filter((item) => item.product.id !== productId)
-    );
-    this.saveItemsToLocalStorage();
-  }
-  getTotalPrice(): number {
-    return this.cartProducts().reduce(
-      (total, item) =>
-        total +
-        (item.product.discountPrice ?? item.product.price) * item.quantity,
+  private updateCartTotal(cart: Cart): void {
+    cart.totalAmount = cart.items.reduce(
+      (total, item) => total + item.product.price * item.quantity,
       0
     );
+    cart.updatedAt = new Date();
   }
 }

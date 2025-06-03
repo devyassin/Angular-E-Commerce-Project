@@ -1,27 +1,45 @@
-import { Component } from '@angular/core';
-import { CartService } from '../../services/cart.service';
-import { CartItem } from '../../models/cart.type';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Route, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { CartService } from '../../services/cart.service';
+import { Cart, CartItem } from '../../models/cart.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
+  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.css',
+  styleUrls: ['./cart.component.css'],
 })
-export class CartComponent {
-  constructor(public cartService: CartService, private router: Router) {}
+export class CartComponent implements OnInit {
+  cart$: Observable<Cart>;
 
-  updateQuantity(item: CartItem, newQuantity: number) {
-    this.cartService.updateQuantity(item.product.id, newQuantity);
+  constructor(private cartService: CartService) {
+    this.cart$ = this.cartService.getCart();
   }
 
-  removeItem(item: CartItem) {
-    this.cartService.removeFromCart(item.product.id);
+  ngOnInit(): void {}
+
+  updateQuantity(itemId: string, quantity: number): void {
+    this.cartService.updateQuantity(itemId, quantity).subscribe();
   }
 
-  checkout() {
-    this.router.navigate(['/checkout']); // Correct navigation
+  removeItem(itemId: string): void {
+    this.cartService.removeFromCart(itemId).subscribe();
+  }
+
+  clearCart(): void {
+    this.cartService.clearCart().subscribe();
+  }
+
+  incrementQuantity(item: CartItem): void {
+    this.updateQuantity(item.id, item.quantity + 1);
+  }
+
+  decrementQuantity(item: CartItem): void {
+    if (item.quantity > 1) {
+      this.updateQuantity(item.id, item.quantity - 1);
+    }
   }
 }

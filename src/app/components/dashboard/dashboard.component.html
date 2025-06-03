@@ -1,0 +1,200 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-amber-50 to-orange-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <h1 class="text-5xl font-bold text-gray-900 mb-6">
+          Experience the
+          <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600"
+          >
+            Perfect Cup
+          </span>
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+          Discover our exceptional range of premium coffee capsules and
+          state-of-the-art machines. Every cup is a journey of taste and aroma.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <button
+            routerLink="/products"
+            class="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-8 py-4 rounded-full font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            Shop Now
+          </button>
+          <button
+            class="border-2 border-amber-600 text-amber-600 px-8 py-4 rounded-full font-semibold hover:bg-amber-600 hover:text-white transition-all duration-300"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+      <div class="relative">
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-amber-200 to-orange-200 rounded-3xl transform rotate-3 opacity-20"
+        ></div>
+        <img
+          src="https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=600&h=400&fit=crop"
+          alt="Premium Coffee"
+          class="relative rounded-3xl shadow-2xl w-full h-96 object-cover"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        From intense espressos to smooth lungo blends, find your perfect match
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div
+        *ngFor="let category of categories$ | async"
+        class="group cursor-pointer transform hover:scale-105 transition-all duration-300"
+      >
+        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+          <img
+            [src]="category.image"
+            [alt]="category.name"
+            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
+          ></div>
+          <div class="absolute bottom-6 left-6 text-white">
+            <h3 class="text-xl font-bold mb-2">{{ category.name }}</h3>
+            <p class="text-gray-200">{{ category.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Discover our most popular coffee selections, loved by coffee enthusiasts
+        worldwide
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div
+        *ngFor="let product of featuredProducts$ | async"
+        class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+      >
+        <div class="relative">
+          <img
+            [src]="product.image"
+            [alt]="product.name"
+            class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          <div class="absolute top-4 right-4">
+            <span
+              *ngIf="product.intensity"
+              class="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-semibold"
+            >
+              Intensity {{ product.intensity }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">
+            {{ product.name }}
+          </h3>
+          <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+            {{ product.description }}
+          </p>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xl font-bold text-amber-600"
+              >${{ product.price }}</span
+            >
+            <button
+              (click)="addToCart(product.id)"
+              class="bg-amber-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-amber-700 transition-colors duration-200 transform hover:scale-105"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-12">
+      <button
+        routerLink="/products"
+        class="bg-transparent border-2 border-amber-600 text-amber-600 px-8 py-3 rounded-full font-semibold hover:bg-amber-600 hover:text-white transition-all duration-300"
+      >
+        View All Products
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Experience Section -->
+<section class="py-16 bg-amber-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold mb-8">The Ultimate Coffee Experience</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div
+            class="bg-amber-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Premium Quality</h3>
+          <p class="text-amber-100">
+            Sourced from the world's finest coffee regions
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="bg-amber-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Fast Delivery</h3>
+          <p class="text-amber-100">Free shipping on orders over $50</p>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="bg-amber-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Expert Support</h3>
+          <p class="text-amber-100">
+            24/7 customer service and coffee expertise
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,182 +1,159 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Product } from '../models/product.type';
-import { finalize } from 'rxjs';
-import { ProductFilter } from '../models/filter.type';
-import { CartService } from './cart.service';
-import { CartItem } from '../models/cart.type';
-
-const API_URL = 'http://localhost:3000';
-type PaginatedResponse<T> = {
-  data: T[];
-  pages: number;
-  items: number;
-};
+import { Injectable } from '@angular/core';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Product, ProductCategory } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  http = inject(HttpClient);
-  cartService = inject(CartService);
-  paginatedProducts = signal<Product[]>([]);
-  totalPages = signal<number>(0);
-  totalItems = signal<number>(0);
-  isLoading = signal<boolean>(false);
-  error = signal<string | null>(null);
-  activeFilter = signal<ProductFilter>({});
-  selectedProduct = signal<Product | null>(null);
-  selectedImage = signal<string>('');
-  cartProducts = signal<CartItem[]>([]);
+  private products: Product[] = [
+    {
+      id: '1',
+      name: 'Arpeggio',
+      description:
+        'A deep and dense coffee with a strong character and intense body.',
+      price: 8.5,
+      image:
+        'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=400&h=400&fit=crop',
+      category: 'coffee',
+      intensity: 9,
+      cupSize: 'Espresso (40ml)',
+      stock: 50,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: '2',
+      name: 'Livanto',
+      description: 'A well-balanced coffee with a roasted caramelized note.',
+      price: 8.0,
+      image:
+        'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400&h=400&fit=crop',
+      category: 'coffee',
+      intensity: 6,
+      cupSize: 'Espresso (40ml)',
+      stock: 45,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: '3',
+      name: 'Volluto',
+      description: 'A light and sweet coffee with fruity and biscuity notes.',
+      price: 7.8,
+      image:
+        'https://images.unsplash.com/photo-1567339850467-5dc8fc2e8e96?w=400&h=400&fit=crop',
+      category: 'coffee',
+      intensity: 4,
+      cupSize: 'Espresso (40ml)',
+      stock: 60,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: '4',
+      name: 'Kazaar',
+      description: 'An exceptionally intense coffee with a syrupy body.',
+      price: 9.2,
+      image:
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop',
+      category: 'coffee',
+      intensity: 12,
+      cupSize: 'Espresso (40ml)',
+      stock: 30,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: '5',
+      name: 'Vertuo Next',
+      description: 'Premium coffee machine for the perfect cup every time.',
+      price: 199.99,
+      image:
+        'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400&h=400&fit=crop',
+      category: 'machine',
+      intensity: 0,
+      cupSize: '',
+      stock: 15,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: '6',
+      name: 'Essenza Mini',
+      description: 'Compact and lightweight machine for authentic espresso.',
+      price: 89.99,
+      image:
+        'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=400&h=400&fit=crop',
+      category: 'machine',
+      intensity: 0,
+      cupSize: '',
+      stock: 20,
+      isActive: true,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+  ];
+  private categories: ProductCategory[] = [
+    {
+      id: '1',
+      name: 'Coffee Capsules',
+      description: 'Premium coffee capsules for every taste',
+      image:
+        'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=400&h=300&fit=crop',
+    },
+    {
+      id: '2',
+      name: 'Coffee Machines',
+      description: 'State-of-the-art coffee machines',
+      image:
+        'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400&h=300&fit=crop',
+    },
+    {
+      id: '3',
+      name: 'Accessories',
+      description: 'Everything you need for the perfect coffee experience',
+      image:
+        'https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&h=300&fit=crop',
+    },
+  ];
 
-  constructor() {
-    this.loadItemsFromLocalStorage();
+  getAllProducts(): Observable<Product[]> {
+    return of(this.products);
   }
 
-  setFilter(filter: ProductFilter): void {
-    this.activeFilter.set(filter);
-    this.fetchProducts();
-  }
-  private applyFilterToProducts(
-    products: Product[],
-    filter: ProductFilter
-  ): Product[] {
-    return products
-      .filter((product) => {
-        if (filter.category && product.category !== filter.category)
-          return false;
-
-        if (filter.minPrice !== undefined && product.price < filter.minPrice)
-          return false;
-        if (filter.maxPrice !== undefined && product.price > filter.maxPrice)
-          return false;
-
-        if (filter.minRating !== undefined && product.rating < filter.minRating)
-          return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (!filter.sortBy) return 0;
-
-        switch (filter.sortBy) {
-          case 'priceLowToHigh':
-            return a.price - b.price;
-          case 'priceHighToLow':
-            return b.price - a.price;
-          case 'popularity':
-            return b.rating - a.rating;
-          default:
-            return 0;
-        }
-      });
+  getProductById(id: string): Observable<Product | undefined> {
+    const product = this.products.find((p) => p.id === id);
+    return of(product);
   }
 
-  fetchProducts(page: number = 1, limit: number = 6) {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    const filter = this.activeFilter();
-
-    let params = new HttpParams()
-      .set('_page', page.toString())
-      .set('_per_page', limit.toString());
-
-    if (filter.category) {
-      params = params.set('category', filter.category);
-    }
-
-    if (filter.minPrice !== undefined) {
-      params = params.set('price_gte', filter.minPrice.toString()); // `_gte` for min
-    }
-    if (filter.maxPrice !== undefined) {
-      params = params.set('price_lte', filter.maxPrice.toString()); // `_lte` for max
-    }
-    if (filter.minRating !== undefined) {
-      params = params.set('rating_gte', filter.minRating.toString()); // `_gte` for rating
-    }
-
-    // Apply sorting
-    if (filter.sortBy) {
-      let sortField = 'price';
-      let sortOrder = 'asc';
-
-      switch (filter.sortBy) {
-        case 'priceLowToHigh':
-          sortField = 'price';
-          sortOrder = 'asc';
-          break;
-        case 'priceHighToLow':
-          sortField = 'price';
-          sortOrder = 'desc';
-          break;
-        case 'popularity':
-          sortField = 'reviews';
-          sortOrder = 'desc';
-          break;
-      }
-
-      params = params.set('_sort', sortField).set('_order', sortOrder);
-    }
-
-    return this.http
-      .get<PaginatedResponse<Product>>(`${API_URL}/products`, {
-        params,
-      })
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (response) => {
-          this.paginatedProducts.set(this.addItemToCart(response.data));
-          console.log(this.paginatedProducts());
-          this.totalPages.set(response.pages);
-          this.totalItems.set(response.items);
-        },
-        error: (error) => {
-          this.error.set(error.message);
-        },
-      });
+  getProductsByCategory(category: string): Observable<Product[]> {
+    const filteredProducts = this.products.filter(
+      (p) => p.category === category
+    );
+    return of(filteredProducts);
   }
 
-  fetchOneProduct(productId: number) {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    return this.http
-      .get<Product>(`${API_URL}/products?id=${productId}`)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (product: any) => {
-          console.log(product[0]);
-          this.selectedProduct.set(this.addSingleItemToCart(product[0]));
-          this.selectedImage.set(product[0].images[0]);
-        },
-        error: (error) => {
-          this.error.set(error.message);
-        },
-      });
+  getCategories(): Observable<ProductCategory[]> {
+    return of(this.categories);
   }
 
-  private loadItemsFromLocalStorage() {
-    const items = localStorage.getItem('items');
-    if (items) {
-      this.cartProducts.set(JSON.parse(items));
-    }
+  getFeaturedProducts(): Observable<Product[]> {
+    // Return first 4 products as featured
+    return of(this.products.slice(0, 4));
   }
 
-  private addItemToCart(products: Product[]): Product[] {
-    return products.map((product) => ({
-      ...product,
-      isAddedToCart: this.cartProducts().some(
-        (item) => item.product.id === product.id
-      ),
-    }));
-  }
-  private addSingleItemToCart(product: Product): Product {
-    return {
-      ...product,
-      isAddedToCart: this.cartProducts().some(
-        (item) => item.product.id === product.id
-      ),
-    };
+  searchProducts(query: string): Observable<Product[]> {
+    const filtered = this.products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.description.toLowerCase().includes(query.toLowerCase())
+    );
+    return of(filtered);
   }
 }

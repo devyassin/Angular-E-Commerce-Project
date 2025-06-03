@@ -1,16 +1,267 @@
-<h1 class="text-2xl font-bold mb-4">Products</h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Our Products</h1>
+    <p class="text-gray-600">
+      Discover our complete range of premium coffee products
+    </p>
+  </div>
 
-@if (productService.isLoading()) {
-<div class="card flex justify-center w-full">
-  <p-progress-spinner ariaLabel="loading" />
-</div>
+  <!-- Filters and Search -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+      <!-- Search -->
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Search products..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange(searchTerm)"
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+        />
+        <svg
+          class="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
 
-} @else { @if (productService.error()) {
-<div class="text-center text-red-500">Error: {{ productService.error() }}</div>
-} @else {
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  @for (product of productService.paginatedProducts(); track product.id) {
-  <app-product-card [product]="product"></app-product-card>
-  }
+      <!-- Category Filter -->
+      <select
+        [(ngModel)]="selectedCategory"
+        (change)="onCategoryChange(selectedCategory)"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+      >
+        <option value="all">All Categories</option>
+        <option value="coffee">Coffee Capsules</option>
+        <option value="machine">Coffee Machines</option>
+        <option value="accessories">Accessories</option>
+      </select>
+
+      <!-- Sort -->
+      <select
+        [(ngModel)]="sortBy"
+        (change)="onSortChange(sortBy)"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+      >
+        <option value="name">Sort by Name</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="intensity">Intensity</option>
+      </select>
+
+      <!-- View Mode Toggle -->
+      <div class="flex justify-end">
+        <button
+          (click)="toggleViewMode()"
+          class="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <svg
+            *ngIf="viewMode === 'grid'"
+            class="h-5 w-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 10h16M4 14h16M4 18h16"
+            ></path>
+          </svg>
+          <svg
+            *ngIf="viewMode === 'list'"
+            class="h-5 w-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            ></path>
+          </svg>
+          {{ viewMode === "grid" ? "List View" : "Grid View" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div
+    *ngIf="viewMode === 'grid'"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  >
+    <div
+      *ngFor="let product of filteredProducts$ | async"
+      class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+    >
+      <div class="relative">
+        <img
+          [src]="product.image"
+          [alt]="product.name"
+          class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div class="absolute top-4 right-4">
+          <span
+            *ngIf="product.intensity"
+            class="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-semibold"
+          >
+            {{ product.intensity }}
+          </span>
+        </div>
+        <div class="absolute top-4 left-4">
+          <span
+            *ngIf="product.stock < 10"
+            class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold"
+          >
+            Low Stock
+          </span>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ product.name }}</h3>
+        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+          {{ product.description }}
+        </p>
+
+        <div *ngIf="product.cupSize" class="text-xs text-gray-500 mb-2">
+          {{ product.cupSize }}
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xl font-bold text-amber-600"
+            >${{ product.price }}</span
+          >
+          <span class="text-sm text-gray-500">Stock: {{ product.stock }}</span>
+        </div>
+
+        <div class="flex space-x-2">
+          <button
+            [routerLink]="['/product', product.id]"
+            class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          >
+            View Details
+          </button>
+          <button
+            (click)="addToCart(product.id)"
+            [disabled]="product.stock === 0"
+            class="flex-1 bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products List -->
+  <div *ngIf="viewMode === 'list'" class="space-y-4">
+    <div
+      *ngFor="let product of filteredProducts$ | async"
+      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+    >
+      <div class="flex flex-col md:flex-row">
+        <div class="md:w-48 h-48 flex-shrink-0">
+          <img
+            [src]="product.image"
+            [alt]="product.name"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <div class="flex-1 p-6">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-bold text-gray-900">{{ product.name }}</h3>
+            <div class="flex items-center space-x-2">
+              <span
+                *ngIf="product.intensity"
+                class="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-semibold"
+              >
+                Intensity {{ product.intensity }}
+              </span>
+              <span
+                *ngIf="product.stock < 10"
+                class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold"
+              >
+                Low Stock
+              </span>
+            </div>
+          </div>
+
+          <p class="text-gray-600 mb-4">{{ product.description }}</p>
+
+          <div
+            class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-4"
+          >
+            <div>
+              <span class="font-medium">Price:</span> ${{ product.price }}
+            </div>
+            <div>
+              <span class="font-medium">Stock:</span> {{ product.stock }} units
+            </div>
+            <div *ngIf="product.cupSize">
+              <span class="font-medium">Cup Size:</span> {{ product.cupSize }}
+            </div>
+            <div>
+              <span class="font-medium">Category:</span>
+              {{ product.category | titlecase }}
+            </div>
+          </div>
+
+          <div class="flex space-x-4">
+            <button
+              [routerLink]="['/product', product.id]"
+              class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            >
+              View Details
+            </button>
+            <button
+              (click)="addToCart(product.id)"
+              [disabled]="product.stock === 0"
+              class="bg-amber-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="(filteredProducts$ | async)?.length === 0"
+    class="text-center py-12"
+  >
+    <svg
+      class="mx-auto h-12 w-12 text-gray-400"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8l-4 4-4-4m0 0l4-4 4 4"
+      ></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+    <p class="mt-1 text-sm text-gray-500">
+      Try adjusting your search or filter criteria.
+    </p>
+  </div>
 </div>
-} }
